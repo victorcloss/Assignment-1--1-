@@ -1,0 +1,103 @@
+\section*{Problem 1: Mixed Integer Programming (MIP)}
+
+\newcommand{\SolverMIP}{\todo{Gurobi}\xspace}  %% or CPLEX, or Xpress, or Cbc
+\newcommand{\TimeoutMIP}{\todo{314.56}}  %% timeout, in CPU seconds; MIN 300.00
+
+\paragraph{Task~A.}~
+\todo{What are the variables, their meanings, their constraints, and
+  the objective function?
+  % 
+  For example, for the investment design problem, one might write:
+  ``Let variable~$m_{ij}$ take value~$1$ if basket~$i$ invests in
+  credit~$j$, and value~$0$ otherwise, with $i \in 1 \twodots v$ and
+  $j \in 1 \twodots b$.
+  % 
+  The constraint that each row must sum up to~$r$ can then be linearly
+  modelled as
+  \[
+    \forall i \in 1 \twodots v : \sum_{j \in 1 \twodots b} m_{ij} = r
+  \]
+  % 
+  Etc.''
+  %
+}
+
+(We are aware that we may lose~1 point if the model described above is
+different from what is actually implemented in Task~B and evaluated in
+Tasks~C to~H.)
+
+\paragraph{Task~B.}
+Our model \texttt{servStatLoc.mod} is uploaded with this report (but
+not listed inside it): we checked that its constraints and objective
+function are linear (and we are aware that~$4$~points will otherwise
+be deducted from our score for this problem).
+
+We chose the MIP solver~\SolverMIP for our experiments, which we ran
+\todo{on the NEOS server or
+  %% Below is a specification of the ThinLinc Linux hosts of the IT dept:
+  %% --> Replace by a similar-looking specification of your used hardware
+  %% (under Linux, do lscpu to find the specification, and under
+  %% macOS, you find it via "About This Mac" in the Apple menu):
+  under Linux Ubuntu~22.04.5 ($64$~bit) on an Intel Xeon E5520 of
+  $2.27$~GHz, with $4$~processors of $4$~cores each, with a $70$~GiB
+  RAM and an $8$~MiB L3 cache (a ThinLinc computer of the IT
+  department).}  % barany.it.uu.se
+
+\paragraph{Tasks C, D, E, and F.}
+The results are in Table~\ref{tab:res:mip}.
+
+\paragraph{Task G.}
+The results are in Table~\ref{tab:res:mip}.
+%
+Our model \todo{does not time out}.
+
+\paragraph{Task H.}
+The results are in Table~\ref{tab:res:mip}.
+%
+Our model \todo{times out,
+%% Optional for solo teams:
+  so our proposed algorithm for delivering a not necessarily optimal
+  solution in reasonable running time is \dots\ as follows \dots}.
+
+%% Optional for solo teams:
+\paragraph{Task~I.}
+The size of the search space of the problem is
+\todo{$\binom{z!}{\cos c} \cdot \log_s v$}, because \todo{\dots\
+  justification \dots}.
+
+The numbers of candidate solutions this brute-force search algorithm
+has to examine per second in order to match the reported runtime
+performance of~\SolverMIP on our model are given in the right-most
+column of Table~\ref{tab:res:mip}, for each instance that~\SolverMIP
+solved to proven optimality without timing out.
+
+\begin{table}[t]
+  \centering
+  \begin{tabular}{rrrrrrrr}
+    $z$ & $s$ & $v$ & $c$ & time & objective value & optimality gap & brute-force \\
+    \midrule
+    \input{results-MIP.tex} %% Let your experiment script write directly
+                            %% into this file, making sure every number
+                            %% in a column has the _same_ number of decimals
+  \end{tabular}
+  \caption{Service station location: runtime (in seconds), objective
+    value, and optimality gap (in percent; positive if an optimal
+    solution was not found and proven before timing out)
+    using~\SolverMIP, with a timeout of $\TimeoutMIP$~CPU seconds.
+    The right-most column gives the number of candidate solutions a
+    totally brute-force search algorithm has to examine per second in
+    order to match the runtime performance of~\SolverMIP, if the
+    instance was solved to proven optimality, and~`n/a' for
+    `non-applicable' otherwise.
+    %% Delete the following sentence:
+    \todo{(The sample performance of this skeleton table is made up,
+      but the two given optimal objective values are correct!)}
+    % 
+  }
+  \label{tab:res:mip}
+\end{table}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "assignment1-report"
+%%% End:

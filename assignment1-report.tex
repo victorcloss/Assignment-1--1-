@@ -1,0 +1,87 @@
+\documentclass[a4paper,11pt,hidelinks]{article}
+\usepackage[utf8]{inputenc}  % Linux, macOS: enable non-English characters
+%\usepackage[latin1]{inputenc}    % Windows: enable non-English characters
+\usepackage[british]{babel}
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{color}
+\usepackage{courier} % \texttt{...} gives thinner text
+\usepackage{mathtools} % provides \coloneqq
+\usepackage{multirow}
+\usepackage{tikz} \usetikzlibrary{trees}
+\usepackage{xspace}
+\usepackage{hyperref} % should always be the last package
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=magenta}
+
+%% Instructions are preceded by "%%", whether you use LaTeX or not!
+
+\newcommand{\todo}[1]{\textcolor{blue}{#1}} %% Use for spotting placeholders
+%\newcommand{\todo}[1]{#1}                  %% Use for the submitted report
+
+%%% Useful (wrappers for) math symbols:
+\newcommand{\Cardinality}[1]{\left\lvert#1\right\rvert}
+%\newcommand{\Cardinality}[1]{\##1}
+\newcommand{\Ceiling}[1]{\left\lceil#1\right\rceil}
+\newcommand{\Floor}[1]{\left\lfloor#1\right\rfloor}
+\newcommand{\Iff}{\Leftrightarrow}
+\newcommand{\Implies}{\Rightarrow}
+\newcommand{\Intersect}{\cap}
+\newcommand{\Oh}[1]{\mathcal{O}\left(#1\right)}
+\newcommand{\Sequence}[1]{\left[#1\right]}
+\newcommand{\Set}[1]{\left\{#1\right\}}
+\newcommand{\SetComprehension}[2]{\Set{#1\SuchThat#2}}
+\newcommand{\SuchThat}{\mid}
+\newcommand{\Tuple}[1]{\langle#1\rangle}
+\newcommand{\twodots}{\mathinner{\ldotp\ldotp}}  % taken from clrscode3e.sty
+\newcommand{\Union}{\cup}
+
+\title{\textbf{Algorithms and Data Structures III (course 1DL481) \\
+    Uppsala University -- Spring 2026 \\
+    Report for Assignment 1
+    by Team~\todo{t}}}              %% Replace t by your team number
+
+%% Replace by your name(s) and choose the encoding of line 2 or line 3:
+\author{\todo{Clara CLÄVER and Whiz KIDD}}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\input{report-MIP.tex}
+
+\input{report-SLS.tex}
+
+% =========================================================================
+
+%% Optional:
+
+\section*{Feedback to the Teachers}
+
+\todo{Please write a paragraph, which will \emph{not} be graded,
+  describing your experience with this assignment.  You may also do so
+  anonymously, by whichever channel you choose.  Which tasks were too
+  difficult or too easy?  Which tasks were interesting or boring?
+  Recall that experiments are inevitable.  This will help us improve
+  the course for the next year.}
+
+% -------------------------------------------------------------------------
+
+%% Uncomment the following two lines if you use \cite:
+% \bibliographystyle{abbrv}
+% \bibliography{AD3}  %% Add your references to the AD3.bib file
+
+% -------------------------------------------------------------------------
+
+%% Comment away the following line before submitting:
+\todo{\input{appendix}}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
