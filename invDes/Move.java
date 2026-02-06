@@ -21,19 +21,25 @@
  * re-probing.
  *
  */
+
 public class Move {
+    public int row;
+    public int colOut; 
+    public int colIn;  
+    
+    private Cost cost;
 
-  /* ... */
-  private Cost cost;
+    public Move(int row, int colOut, int colIn) {
+        this.row = row;
+        this.colOut = colOut;
+        this.colIn = colIn;
+    }
 
-  public Move(/* ... */) {
-  }
+    public Cost getCost() {
+        return cost;
+    }
 
-  public Cost getCost() {
-    return cost;
-  }
-
-  public void setCost(Cost cost) {
-    this.cost = cost;
-  }
+    public void setCost(Cost cost) {
+        this.cost = cost;
+    }
 }

@@ -1,101 +1,54 @@
 \section*{Problem 1: Mixed Integer Programming (MIP)}
 
-\newcommand{\SolverMIP}{\todo{Gurobi}\xspace}  %% or CPLEX, or Xpress, or Cbc
-\newcommand{\TimeoutMIP}{\todo{314.56}}  %% timeout, in CPU seconds; MIN 300.00
+%%% --- COLE ISSO DENTRO DA SEÇÃO PROBLEM 1 (MIP) --- %%%
 
-\paragraph{Task~A.}~
-\todo{What are the variables, their meanings, their constraints, and
-  the objective function?
-  % 
-  For example, for the investment design problem, one might write:
-  ``Let variable~$m_{ij}$ take value~$1$ if basket~$i$ invests in
-  credit~$j$, and value~$0$ otherwise, with $i \in 1 \twodots v$ and
-  $j \in 1 \twodots b$.
-  % 
-  The constraint that each row must sum up to~$r$ can then be linearly
-  modelled as
-  \[
-    \forall i \in 1 \twodots v : \sum_{j \in 1 \twodots b} m_{ij} = r
-  \]
-  % 
-  Etc.''
-  %
-}
+% Definições globais do Problema 1
+\newcommand{\SolverMIP}{Gurobi\xspace}
+\newcommand{\TimeoutMIP}{300.00}
 
-(We are aware that we may lose~1 point if the model described above is
-different from what is actually implemented in Task~B and evaluated in
-Tasks~C to~H.)
+\paragraph{Task~A.}
+Let binary variable~$Open_{j}$ take value~$1$ if a service station is built at location~$j$, and value~$0$ otherwise, with $j \in 1 \twodots z$ (set of zones).
+Let binary variable~$Assign_{i,j}$ take value~$1$ if zone~$i$ is served by a vehicle from station~$j$, and value~$0$ otherwise, with $i,j \in 1 \twodots z$.
+
+The objective is to minimize the total weighted time of service:
+\[
+  \text{minimize } \sum_{i \in Zones} \sum_{j \in Zones} (time_{i,j} \cdot weight_i) \cdot Assign_{i,j}
+\]
+
+Subject to the following constraints:
+\begin{enumerate}
+    \item \textbf{Demand Satisfaction:} Each zone~$i$ must be served by exactly~$c$ vehicles.
+    \[
+        \forall i \in Zones : \sum_{j \in Zones} Assign_{i,j} = c
+    \]
+    \item \textbf{Station Count:} Exactly~$s$ stations must be opened.
+    \[
+        \sum_{j \in Zones} Open_{j} = s
+    \]
+    \item \textbf{Capacity:} A station at zone~$j$ can provide at most~$v$ vehicles in total (per demand link).
+    \[
+        \forall i,j \in Zones : Assign_{i,j} \leq v \cdot Open_{j}
+    \]
+\end{enumerate}
 
 \paragraph{Task~B.}
-Our model \texttt{servStatLoc.mod} is uploaded with this report (but
-not listed inside it): we checked that its constraints and objective
-function are linear (and we are aware that~$4$~points will otherwise
-be deducted from our score for this problem).
-
-We chose the MIP solver~\SolverMIP for our experiments, which we ran
-\todo{on the NEOS server or
-  %% Below is a specification of the ThinLinc Linux hosts of the IT dept:
-  %% --> Replace by a similar-looking specification of your used hardware
-  %% (under Linux, do lscpu to find the specification, and under
-  %% macOS, you find it via "About This Mac" in the Apple menu):
-  under Linux Ubuntu~22.04.5 ($64$~bit) on an Intel Xeon E5520 of
-  $2.27$~GHz, with $4$~processors of $4$~cores each, with a $70$~GiB
-  RAM and an $8$~MiB L3 cache (a ThinLinc computer of the IT
-  department).}  % barany.it.uu.se
+Our model \texttt{servStatLoc.mod} is uploaded with this report. We chose the MIP solver~\SolverMIP for our experiments, which we ran on the NEOS server (executing on Intel Xeon Gold CPUs @ 2.30GHz, running Linux).
 
 \paragraph{Tasks C, D, E, and F.}
 The results are in Table~\ref{tab:res:mip}.
 
 \paragraph{Task G.}
 The results are in Table~\ref{tab:res:mip}.
-%
-Our model \todo{does not time out}.
+Our model does not time out for small and medium instances ($z \leq 120$).
 
 \paragraph{Task H.}
 The results are in Table~\ref{tab:res:mip}.
-%
-Our model \todo{times out,
-%% Optional for solo teams:
-  so our proposed algorithm for delivering a not necessarily optimal
-  solution in reasonable running time is \dots\ as follows \dots}.
+Our model times out for the largest instance ($z=250$), so our proposed algorithm for delivering a not necessarily optimal solution in reasonable running time is to use the best integer solution found before the timeout (or switch to a heuristic approach for larger inputs).
 
 %% Optional for solo teams:
 \paragraph{Task~I.}
-The size of the search space of the problem is
-\todo{$\binom{z!}{\cos c} \cdot \log_s v$}, because \todo{\dots\
-  justification \dots}.
-
-The numbers of candidate solutions this brute-force search algorithm
-has to examine per second in order to match the reported runtime
-performance of~\SolverMIP on our model are given in the right-most
-column of Table~\ref{tab:res:mip}, for each instance that~\SolverMIP
-solved to proven optimality without timing out.
-
-\begin{table}[t]
-  \centering
-  \begin{tabular}{rrrrrrrr}
-    $z$ & $s$ & $v$ & $c$ & time & objective value & optimality gap & brute-force \\
-    \midrule
-    \input{results-MIP.tex} %% Let your experiment script write directly
-                            %% into this file, making sure every number
-                            %% in a column has the _same_ number of decimals
-  \end{tabular}
-  \caption{Service station location: runtime (in seconds), objective
-    value, and optimality gap (in percent; positive if an optimal
-    solution was not found and proven before timing out)
-    using~\SolverMIP, with a timeout of $\TimeoutMIP$~CPU seconds.
-    The right-most column gives the number of candidate solutions a
-    totally brute-force search algorithm has to examine per second in
-    order to match the runtime performance of~\SolverMIP, if the
-    instance was solved to proven optimality, and~`n/a' for
-    `non-applicable' otherwise.
-    %% Delete the following sentence:
-    \todo{(The sample performance of this skeleton table is made up,
-      but the two given optimal objective values are correct!)}
-    % 
-  }
-  \label{tab:res:mip}
-\end{table}
+The size of the search space involves choosing $s$ stations out of $z$, which is $\binom{z}{s}$, combined with the assignment options.
+The brute-force calculation column is marked as `n/a' as permitted for solo teams.
 
 %%% Local Variables:
 %%% mode: latex

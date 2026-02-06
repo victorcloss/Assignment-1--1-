@@ -18,32 +18,28 @@
  *
  * Feel free to change anything in this file if necessary.
  */
-class Cost {
+class Cost implements Comparable<Cost> {
+    public int value;
 
-  // *...*/
+    public Cost(int value) {
+        this.value = value;
+    }
 
-  public Cost(/* ... */) {
-    /* ... */
-  }
+    @Override
+    public String toString() {
+        return Integer.toString(value);
+    }
 
-  /**
-   * @return pretty printing of the cost
-   */
-  @Override
-  public String toString() {
-    /* ... */
-    return "";
-  }
+    public boolean isEqualTo(Cost c) {
+        return this.value == c.value;
+    }
 
-  public boolean isEqualTo(Cost c) {
-    /* ... */
-    return false;
-  }
+    public boolean isBetterThan(Cost c) {
+        return this.value < c.value; // Menor é melhor
+    }
 
-  public boolean isBetterThan(Cost c) {
-    /* ... */
-    return false;
-  }
-
-
+    @Override
+    public int compareTo(Cost o) {
+        return Integer.compare(this.value, o.value);
+    }
 }

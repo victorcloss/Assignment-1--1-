@@ -20,91 +20,176 @@
  *
  * Don't forget to add your own helper methods in addition to the ones here.
  */
+
+import java.util.Random;
+
 class Design {
+    private final int v, b, r;
+    
+    // A matriz principal: 1 se investiu, 0 caso contrário
+    private int[][] matrix;
+    
+    // Matriz de interseções (overlaps): overlaps[i][j] = produto escalar entre linha i e j
+    private int[][] overlaps;
+    
+    // Backup para salvar a melhor solução encontrada
+    private int[][] savedMatrix;
+    
+    private Random random = new Random();
 
-  /* ... */
-  private DotProduct dotProduct;
-  private final int v, b, r;
+    Design(int v, int b, int r) {
+        this.v = v;
+        this.b = b;
+        this.r = r;
+        this.matrix = new int[v][b];
+        this.overlaps = new int[v][v];
+        this.savedMatrix = new int[v][b];
+        this.init();
+    }
 
-  // Don't forget to use incremental data structures to efficiently determine, given a move, which
-  // rows in dotProduct that change.
+    // Inicializa aleatoriamente garantindo soma 'r' por linha
+    void init() {
+        // Limpa tudo
+        for(int i=0; i<v; i++) {
+            for(int j=0; j<b; j++) matrix[i][j] = 0;
+            for(int j=0; j<v; j++) overlaps[i][j] = 0;
+        }
+        
+        // Preenche cada linha com 'r' uns aleatórios
+        for (int i = 0; i < v; i++) {
+            int placed = 0;
+            while (placed < r) {
+                int col = random.nextInt(b);
+                if (matrix[i][col] == 0) {
+                    matrix[i][col] = 1;
+                    placed++;
+                }
+            }
+        }
+        
+        // Calcula a matriz de overlaps inicial (Full Scan - Lento, mas só roda 1 vez)
+        for (int i = 0; i < v; i++) {
+            for (int j = i + 1; j < v; j++) {
+                int ov = 0;
+                for (int k = 0; k < b; k++) {
+                    if (matrix[i][k] == 1 && matrix[j][k] == 1) ov++;
+                }
+                overlaps[i][j] = ov;
+                overlaps[j][i] = ov;
+            }
+        }
+    }
 
-  Design(int v, int b, int r) {
-    this.v = v;
-    this.b = b;
-    this.r = r;
-    /* ... */
-    this.init();
-  }
+    // Calcula qual seria o custo SE fizéssemos o movimento (Delta Evaluation)
+    Cost probeMove(Move m) {
+        int currentMax = getCurrentMaxOverlap();
+        int predictedMax = 0;
 
-  /**
-   * Create a random initial assignment, setup incremental data structures for detminening which row
-   * changes given a move, and setup the dotProduct object.
-   */
-  void init() {
-    /* ... */
-  }
+        // Verifica o overlap da linha m.row contra todas as outras
+        for (int other = 0; other < v; other++) {
+            if (other == m.row) continue;
 
-  /**
-   * Probe a move. This does not update change any internal data structures (or: any changes are
-   * undone before returning the cost)
-   *
-   * @param m
-   */
-  Cost probeMove(Move m) {
-    /* ... */
+            int ov = overlaps[m.row][other];
+            
+            // Se eu tirar o 1 da colOut, e a outra linha tinha 1 lá -> overlap diminui
+            if (matrix[other][m.colOut] == 1) ov--;
+            
+            // Se eu colocar o 1 na colIn, e a outra linha tem 1 lá -> overlap aumenta
+            if (matrix[other][m.colIn] == 1) ov++;
+            
+            if (ov > predictedMax) predictedMax = ov;
+        }
 
-    // Allocating an new object each probe is unnecessarily expensive.
-    // This can be worked around by instead updating some static object.
-    // However, for this assignment allocating here should be fine...
-    return new Cost(/* ... */);
-  }
+        // Precisamos verificar se o máximo global não vinha de OUTRO par de linhas
+        // Se o predictedMax for maior que o current, ele com certeza é o novo máximo.
+        // Se for menor, pode ser que outro par ainda mantenha o máximo lá em cima.
+        // Como 'probe' precisa ser rápido, retornamos o maior entre o "local afetado" e o "global atual".
+        // (Nota: Isso é uma heurística de simplificação válida para performance)
+        return new Cost(Math.max(predictedMax, getMaxOverlapExcluding(m.row)));
+    }
+    
+    // Retorna o maior overlap entre linhas que NÃO sejam a linha 'excludeRow'
+    private int getMaxOverlapExcluding(int excludeRow) {
+        int max = 0;
+        for(int i=0; i<v; i++) {
+            if(i == excludeRow) continue;
+            for(int j=i+1; j<v; j++) {
+                if(j == excludeRow) continue;
+                if(overlaps[i][j] > max) max = overlaps[i][j];
+            }
+        }
+        return max;
+    }
 
-  /**
-   * Commits a move. This updates internal data structures and performs any necessary computations
-   * that may speed up future probes.
-   *
-   * @param m
-   */
-  void commitMove(Move m) {
-    /* ... */
-  }
+    void commitMove(Move m) {
+        // Atualiza a matriz
+        matrix[m.row][m.colOut] = 0;
+        matrix[m.row][m.colIn] = 1;
+        
+        // Atualiza os overlaps incrementalmente
+        for (int other = 0; other < v; other++) {
+            if (other == m.row) continue;
+            
+            if (matrix[other][m.colOut] == 1) {
+                overlaps[m.row][other]--;
+                overlaps[other][m.row]--;
+            }
+            if (matrix[other][m.colIn] == 1) {
+                overlaps[m.row][other]++;
+                overlaps[other][m.row]++;
+            }
+        }
+    }
 
-  /**
-   * Helper method.
-   * 
-   * Given a move, make the necessary calls to dotProduct.increment() and dotProduct.decrement()
-   * such that dotProduct is up to date.
-   *
-   * @param m
-   */
-  private void updateDotProductFromMove(Move m) {
-    /* ... */
-  }
+    private int getCurrentMaxOverlap() {
+        int max = 0;
+        for (int i = 0; i < v; i++) {
+            for (int j = i + 1; j < v; j++) {
+                if (overlaps[i][j] > max) max = overlaps[i][j];
+            }
+        }
+        return max;
+    }
+    
+    public int getCurrentCostValue() {
+        return getCurrentMaxOverlap();
+    }
 
-  /**
-   * Saves the current assignment such that it can be restored later. Call this when finding a new
-   * overall best assignment.
-   */
-  void saveDesign() {
-    /* ... */
-  }
+    void saveDesign() {
+        for(int i=0; i<v; i++) {
+            System.arraycopy(matrix[i], 0, savedMatrix[i], 0, b);
+        }
+    }
 
-  /**
-   * Restores the saved assignment such that search can continue from it. Call this when doing an
-   * intensification step or for printing the best found solution at the end of the search.
-   */
-  void restoreSavedDesign() {
-    /* ... */
-  }
+    void restoreSavedDesign() {
+        for(int i=0; i<v; i++) {
+            System.arraycopy(savedMatrix[i], 0, matrix[i], 0, b);
+        }
+        // Recalcular overlaps após restore
+        for (int i = 0; i < v; i++) {
+            for (int j = i + 1; j < v; j++) {
+                int ov = 0;
+                for (int k = 0; k < b; k++) {
+                    if (matrix[i][k] == 1 && matrix[j][k] == 1) ov++;
+                }
+                overlaps[i][j] = ov;
+                overlaps[j][i] = ov;
+            }
+        }
+    }
+    
+    public int getB() { return b; }
+    public int getMatrixValue(int r, int c) { return matrix[r][c]; }
 
-  /**
-   *
-   * @return the current design in the format required by the assignment.
-   */
-  @Override
-  public String toString() {
-    return "/*...*/";
-  }
-
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < v; i++) {
+            for (int j = 0; j < b; j++) {
+                sb.append(matrix[i][j]).append(j == b - 1 ? "" : " ");
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
 }

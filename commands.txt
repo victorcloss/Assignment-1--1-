@@ -1,0 +1,4 @@
+option gurobi_options 'outlev=1'; 
+solve;
+display TotalWeightedTime;
+display Open;
